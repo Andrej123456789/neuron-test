@@ -13,6 +13,7 @@ import sys
 @dataclass
 class Neuron:
     value: float
+    weights: List['float'] = field(default_factory=float)
     connected_to: List['Neuron'] = field(default_factory=list)
 
 @dataclass
@@ -34,8 +35,11 @@ def main(content: list):
     last_layer.neurons.append(Neuron(value=0.0))
     last_layer.neurons.append(Neuron(value=0.0))
 
-    for c in content:
-        neuron = Neuron(value=float(c), connected_to=[
+    for i in range(len(content)):
+        weight1 = 0.5 if (i == 0 or i == 3) else -0.5
+        weight2 = -0.5 if (i == 0 or i == 3) else 0.5
+
+        neuron = Neuron(value=float(content[i]), weights=[weight1, weight2], connected_to=[
             last_layer.neurons[0],
             last_layer.neurons[1],
         ])
@@ -44,14 +48,9 @@ def main(content: list):
         
     # ---------------------------------
 
-    for i in range(len(starting_layer.neurons)):
-        if i == 0 or i == 3:
-            last_layer.neurons[0].value += starting_layer.neurons[i].value * 0.5
-            last_layer.neurons[1].value += starting_layer.neurons[i].value * -0.5
-
-        if i == 1 or i == 2:
-            last_layer.neurons[0].value += starting_layer.neurons[i].value * -0.5
-            last_layer.neurons[1].value += starting_layer.neurons[i].value * 0.5
+    for neuron in starting_layer.neurons:
+        last_layer.neurons[0].value += neuron.value * neuron.weights[0]
+        last_layer.neurons[1].value += neuron.value * neuron.weights[1]
 
     # ---------------------------------
 
