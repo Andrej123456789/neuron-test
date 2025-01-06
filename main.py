@@ -20,17 +20,11 @@ class Neuron:
 class Layer:
     neurons: List['Neuron'] = field(default_factory=list)
 
-def initialize_network(content) -> Layer:
-    starting_layer = Layer()
-
-    for c in content:
-        starting_layer.neurons.append(Neuron(value=float(c)))
-
-    return starting_layer
-
 def main(content: list):
     starting_layer = Layer()
     last_layer = Layer()
+
+    # ---------------------------------
 
     last_layer.neurons.append(Neuron(value=0.0))
     last_layer.neurons.append(Neuron(value=0.0))
