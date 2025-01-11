@@ -10,55 +10,68 @@ from typing import List
 import os
 import sys
 
+LAYERS_IN_NETWORK: int = 2
+
 @dataclass
 class Neuron:
     value: float
-    weights: List['float'] = field(default_factory=float)
-    connected_to: List['Neuron'] = field(default_factory=list)
+    weights: List['float'] = field(default_factory=list)
 
 @dataclass
 class Layer:
     neurons: List['Neuron'] = field(default_factory=list)
 
-def main(content: list):
-    starting_layer = Layer()
-    last_layer = Layer()
+def initialize_layer(size: int) -> Layer:
+    layer = Layer()
 
-    # ---------------------------------
+    for i in range(size):
+        neuron = Neuron(value=0.0)
+        layer.neurons.append(neuron)
 
-    last_layer.neurons.append(Neuron(value=0.0))
-    last_layer.neurons.append(Neuron(value=0.0))
+    return layer
 
-    for i in range(len(content)):
+def assign_starting_layer(layer: Layer, content: str, size_of_next_layer: int) -> Layer:
+    for i in range(len(layer.neurons)):
         weight1 = 0.5 if (i == 0 or i == 3) else -0.5
         weight2 = -0.5 if (i == 0 or i == 3) else 0.5
 
-        neuron = Neuron(value=float(content[i]), weights=[weight1, weight2], connected_to=[
-            last_layer.neurons[0],
-            last_layer.neurons[1],
-        ])
+        layer.neurons[i].value = float(content[i])
+        layer.neurons[i].weights=[weight1, weight2]
 
-        starting_layer.neurons.append(neuron)
-        
-    # ---------------------------------
+    return layer
 
-    for neuron in starting_layer.neurons:
-        last_layer.neurons[0].value += neuron.value * neuron.weights[0]
-        last_layer.neurons[1].value += neuron.value * neuron.weights[1]
+def multiply_layer(first_layer: Layer, second_layer: Layer) -> Layer:
+    for i in range(len(first_layer.neurons)):
+        for j in range(len(second_layer.neurons)):
+            second_layer.neurons[j].value += first_layer.neurons[i].value * first_layer.neurons[i].weights[j]
 
-    # ---------------------------------
+    return second_layer
 
-    if last_layer.neurons[0].value == 1:
+def main(content: list):
+    network = []
+
+    starting_layer = initialize_layer(4)
+    last_layer = initialize_layer(2)
+
+    network.append(starting_layer)
+    network.append(last_layer)
+
+    starting_layer = assign_starting_layer(starting_layer, content, 2)
+    
+    for i in range(LAYERS_IN_NETWORK - 1): # do not multiply last layer
+        network[i + 1] = multiply_layer(network[i], network[i + 1])
+
+    if network[LAYERS_IN_NETWORK - 1].neurons[0].value == 1:
         print("Left white diagonal")
 
-    elif last_layer.neurons[1].value == 1:
+    elif network[LAYERS_IN_NETWORK - 1].neurons[1].value == 1:
         print("Right white diagonal")
 
     else:
         print("No diagonal")
 
-    print(f"Neuron 0: {last_layer.neurons[0].value}")
-    print(f"Neuron 1: {last_layer.neurons[1].value}")
+    print(f"Neuron 0: {network[LAYERS_IN_NETWORK - 1].neurons[0].value}")
+    print(f"Neuron 1: {network[LAYERS_IN_NETWORK - 1].neurons[1].value}")
 
 if __name__ == "__main__":
     path: str = None
