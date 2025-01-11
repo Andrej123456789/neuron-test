@@ -30,7 +30,7 @@ def initialize_layer(size: int) -> Layer:
 
     return layer
 
-def assign_starting_layer(layer: Layer, content: str, size_of_next_layer: int) -> Layer:
+def assign_starting_layer(layer: Layer, content: str) -> Layer:
     for i in range(len(layer.neurons)):
         weight1 = 0.5 if (i == 0 or i == 3) else -0.5
         weight2 = -0.5 if (i == 0 or i == 3) else 0.5
@@ -56,7 +56,7 @@ def main(content: list):
     network.append(starting_layer)
     network.append(last_layer)
 
-    starting_layer = assign_starting_layer(starting_layer, content, 2)
+    starting_layer = assign_starting_layer(starting_layer, content)
     
     for i in range(LAYERS_IN_NETWORK - 1): # do not multiply last layer
         network[i + 1] = multiply_layer(network[i], network[i + 1])
